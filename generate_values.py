@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 
 def generate_true_ellipse(num_trials, dt, semimajor, semiminor):
+    ''' Generates an ellipse based on parametric equations of an ellipse '''
     x = np.zeros((4, num_trials)) # x, y, v_x, v_y 
     t = np.linspace(0, 2*math.pi, num_trials)
     x[:,0] = np.array([semimajor*np.cos(t[0]),semiminor*np.sin(t[0]),0,0])
@@ -15,6 +16,7 @@ def generate_true_ellipse(num_trials, dt, semimajor, semiminor):
     return x
 
 def generate_GPS_ellipse(num_trials, dt, semimajor, semiminor, std_dev_x, std_dev_y):
+    ''' Adds noise to generate_true_ellipse() values '''
     x = generate_true_ellipse(num_trials, dt, semimajor, semiminor)
     for i in range(0, num_trials):
         x[0,i] = x[0,i]+np.random.normal(0, std_dev_x)
@@ -36,10 +38,6 @@ def draw_ellipse(x):
     plt.plot(t,x[3],label='calculated $v_y$')
     plt.grid(color='lightgray',linestyle='--')
     plt.legend()
-
-    # plt.figure(3)
-    # plt.plot(t,x[4],label='calculated speed')
-    # plt.legend()
 
     plt.show()
 
