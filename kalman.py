@@ -28,22 +28,31 @@ def kalman_filter(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
                   [0,dt]])
     H = np.eye(4)
 
-    # Init var of x and y are large because uncertain of original position.
+    # Init variance of x and y are large because uncertain of original position.
     # Vel_x and vel_y are 0.1.
-    # All covariances are equal to 0 as each state var is assumed independent.
 
-    P = np.array([ [1, 0, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 0, 1]])
+    P = np.array([ [300, 0, 0, 0],
+                    [0, 300, 0, 0],
+                    [0, 0, 10, 0],
+                    [0, 0, 0, 10]])
     
     variances = np.zeros((4,num_trials))
     # Q = np.zeros(4) # assuming no process noise
-    Q = 0.01*np.dot(A, A.T)
+    # A large Q will make the algorithm rely more on the measurements
+    Q = 5*np.dot(A, A.T)
+    # howMuchTrust = 100
+    # dt_3rd = (dt_sq*dt)/2
+    # dt_4th = (dt_sq**2)/4
+    # Q = np.array([[dt_4th*howMuchTrust, 0, dt_3rd*howMuchTrust, 0],
+    #               [0, dt_4th*howMuchTrust, 0, dt_3rd*howMuchTrust],
+    #               [dt_3rd*howMuchTrust, 0, dt_sq*howMuchTrust, 0],
+    #               [0, dt_3rd*howMuchTrust, 0, dt_sq*howMuchTrust]])
+
     R = np.array([ [9, 0, 0, 0],
                     [0, 9, 0, 0],
                     [0, 0, 0.01, 0],
                     [0, 0, 0, 0.01]])
+
     # [x y v_x v_y].T
     state = np.zeros((4, num_trials))
     
@@ -56,6 +65,7 @@ def kalman_filter(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
 
     for i in range(1, num_trials):
         state[:,[i]] = np.dot(A,state[:, [i - 1]]) +  np.dot(B,u) + np.zeros((4,1)) # the predicted state noise is set to 0
+        # state[:,[i]] = np.dot(A,state[:, [i - 1]]) +  np.dot(B,u) + np.vstack((np.array([1, 1, 1, 1])))
         # state[:,[i]] = np.dot(A,state[:, [i - 1]])
         P = np.dot(np.dot(A,P),A.T) + Q
 
@@ -88,37 +98,38 @@ def plot_states(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
     for both position and velocity. """
 
     states, _ = kalman_filter(num_trials, semimajor, semiminor, std_dev_x, std_dev_y)
-    
-    # fig = plt.figure(num=1,figsize=(12, 10), dpi=100)
     estimates = generate_values.generate_true_ellipse(num_trials,0.001,semimajor,semiminor)
-    # plt.figure()
+    
+    plt.figure(1)
     plt.plot(states[0], states[1])
     plt.plot(estimates[0], estimates[1])
 
-    # ax1 = fig.add_subplot(221)  # x values
-    # plt.plot(states[0],label = 'Filtered values')
-    # plt.plot(estimates[0],label = 'Predicted values')
-    # handles, labels = ax1.get_legend_handles_labels()
-    # ax1.set_title('x position')
+    fig = plt.figure(num=2,figsize=(12, 10), dpi=100)
 
-    # ax2 = fig.add_subplot(222)  # y values
-    # plt.plot(states[1])
-    # plt.plot(estimates[1])
-    # ax2.set_title('y position')
+    ax1 = fig.add_subplot(221)  # x values
+    plt.plot(states[0],label = 'Filtered values')
+    plt.plot(estimates[0],label = 'Predicted values')
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.set_title('x position')
 
-    # ax3 = fig.add_subplot(223) # v_x values
-    # plt.plot(states[2])
-    # plt.plot(estimates[2])
-    # ax3.set_title('$v_x$ values')
+    ax2 = fig.add_subplot(222)  # y values
+    plt.plot(states[1])
+    plt.plot(estimates[1])
+    ax2.set_title('y position')
 
-    # ax4 = fig.add_subplot(224) # v_y values
-    # plt.plot(states[3])
-    # plt.plot(estimates[3])
-    # ax4.set_title('$v_y$ values')
+    ax3 = fig.add_subplot(223) # v_x values
+    plt.plot(states[2])
+    plt.plot(estimates[2])
+    ax3.set_title('$v_x$ values')
+
+    ax4 = fig.add_subplot(224) # v_y values
+    plt.plot(states[3])
+    plt.plot(estimates[3])
+    ax4.set_title('$v_y$ values')
 
 
-    # fig.legend(handles, labels)     # handles and labels for ax2, ax3, ax4 are same as for ax1
-    # fig.subplots_adjust(hspace=.2,wspace=.2)
+    fig.legend(handles, labels)     # handles and labels for ax2, ax3, ax4 are same as for ax1
+    fig.subplots_adjust(hspace=.2,wspace=.2)
     
     plt.show()
 
@@ -154,5 +165,5 @@ def plot_variances(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
 
 
 # num_trials=1000, x_init=2, y_init=2, a_x = a_y = 0.1
-plot_states(1000,300,200, 300, 0)
+plot_states(1000,300,200, 3, 3)
 # plot_variances(1000,2,2, 2, 2)
