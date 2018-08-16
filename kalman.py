@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 
 
 def kalman_filter(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
-    """ kalman_filter() applies a basic Kalman filter on the simulated noisy output from generate_data.py. 
-    The velocity is held constant at 2 m/s. This value can be changed in the generate_values.py source. 
-    There is assumed to be no noise in the prediction step of the filter and hence, the process noise covariance matrix
-    and the predicted state noise matrix are set to zero matrices.
+    """ kalman_filter() applies a Kalman filter on the simulated noisy output from generate_data.py. The velocity is held constant at 2 m/s. This value can be changed in the generate_values.py source. 
     Measurements are taken at every 0.001 second (dt). This can be changed in the kalman.py source.
+    
+    The gain should be large at every step (eg. small R and large Q) as our sensor values need to be taken into account
+    much more than our prediction as the prediction is linear and our path is extremely non-linear (ellipse). If the path
+    was not known to be this non-linear, then this filter would fail as we would not know to set Q to be so large. In that
+    case, a non-linear estimator such as an EKF or UKF is more appropriate.
     """
 
     dt = 0.001
