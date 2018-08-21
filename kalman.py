@@ -40,7 +40,12 @@ def kalman_filter(num_trials, semimajor, semiminor, std_dev_x, std_dev_y):
     
     variances = np.zeros((4,num_trials))
     # Q = np.zeros(4) # assuming no process noise
-    # A large Q will make the algorithm rely more on the measurements
+    ''' A large Q will make the algorithm rely more on the measurements. Over time, the KF
+    will begin to rely more and more on its own outputs and will take the measurement inputs
+    into account less and less. To alleviate this issue and keep a larger stochastic component,
+    which in this case is necessary as the data is so nonlinear, the values in the process noise
+    covariance matrix (Q) can be manually increased/updated. It's also important to remember that
+    Q should be played around with to calibrate and optimize the filter.'''
     Q = 5*np.dot(A, A.T)
     # howMuchTrust = 100
     # dt_3rd = (dt_sq*dt)/2
